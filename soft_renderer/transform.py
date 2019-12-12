@@ -21,8 +21,10 @@ class Projection(nn.Module):
         if dist_coeffs is None:
             self.dist_coeffs = torch.cuda.FloatTensor([[0., 0., 0., 0., 0.]]).repeat(P.shape[0], 1)
 
-    def forward(self, vertices):
-        vertices = srf.projection(vertices, self.P, self.dist_coeffs, self.orig_size)
+    def forward(self, vertices, P=None, dist_coeffs=None):
+        P = self.P if P is None else P
+        dist_coeffs = self.dist_coeffs if dist_coeffs is None else dist_coeffs
+        vertices = srf.projection(vertices, P, dist_coeffs, self.orig_size)
         return vertices
 
 
@@ -87,8 +89,8 @@ class Transform(nn.Module):
         else:
             raise ValueError('Camera mode has to be one of projection, look or look_at')
 
-    def forward(self, mesh):
-        mesh.vertices = self.transformer(mesh.vertices)
+    def forward(self, mesh, P=None, coeffs=None):
+        mesh.vertices = self.transformer(mesh.vertices, P, coeffs)
         return mesh
 
     def set_eyes_from_angles(self, distances, elevations, azimuths):

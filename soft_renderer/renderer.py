@@ -91,12 +91,12 @@ class SoftRenderer(nn.Module):
         self.lighting.light_mode = mode
         self.rasterizer.texture_type = mode
 
-    def render_mesh(self, mesh, mode=None):
+    def render_mesh(self, mesh, mode=None, P=None, dist_coeffs=None):
         self.set_texture_mode(mesh.texture_type)
         mesh = self.lighting(mesh)
-        mesh = self.transform(mesh)
+        mesh = self.transform(mesh, P, dist_coeffs)
         return self.rasterizer(mesh, mode)
 
-    def forward(self, vertices, faces, textures=None, mode=None, texture_type='surface'):
+    def forward(self, vertices, faces, P=None, dist_coeffs=None, textures=None, mode=None, texture_type='surface'):
         mesh = sr.Mesh(vertices, faces, textures=textures, texture_type=texture_type)
-        return self.render_mesh(mesh, mode)
+        return self.render_mesh(mesh, mode, P, dist_coeffs)
